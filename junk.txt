@@ -1,0 +1,257 @@
+# Create a neon, dark-themed Streamlit resume app styled like the screenshot.
+# Files will be saved for download and ready to run via: streamlit run app.py
+
+from pathlib import Path
+
+app_code = r'''# app.py
+import streamlit as st
+
+st.set_page_config(page_title="Muneeb Khan — Resume", page_icon="💼", layout="wide")
+
+# -------------------- THEME / CSS --------------------
+CSS = """
+<style>
+/* Base */
+:root{
+  --bg1:#0b1220;
+  --bg2:#101a2b;
+  --text:#e6f0ff;
+  --muted:#a8b3c7;
+  --primary:#22d3ee; /* cyan */
+  --primary-2:#60a5fa; /* blue */
+  --card:#0f172a;
+  --chip:#0b1220;
+  --shadow: 0 8px 30px rgba(34,211,238,.15), 0 0 40px rgba(96,165,250,.1);
+}
+html, body, .block-container { background: radial-gradient(1200px 600px at -10% -10%, #0e1a2f 0%, #0b1220 35%, #0b1220 100%); }
+.block-container{padding-top:4rem;}
+
+/* Fancy name gradient */
+.gradient-text{
+  font-weight:800;
+  letter-spacing:.3px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-2) 60%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color: transparent;
+}
+
+/* Navbar */
+.navbar{
+ position:fixed; top:0; left:0; right:0; height:64px;
+ background:linear-gradient(180deg, rgba(13,23,41,.75), rgba(13,23,41,.45));
+ backdrop-filter: blur(10px);
+ border-bottom:1px solid rgba(255,255,255,.06);
+ display:flex; align-items:center; justify-content:space-between;
+ padding:0 24px; z-index:999;
+}
+.nav-left{font-size:1.35rem; font-weight:800;}
+.nav-links{display:flex; gap:24px; align-items:center;}
+.nav-link a{color:var(--text); text-decoration:none; opacity:.85;}
+.nav-link a:hover{opacity:1; text-shadow:0 0 12px rgba(34,211,238,.6);}
+.nav-cta{
+  padding:8px 14px; border-radius:10px; font-weight:600;
+  background:linear-gradient(135deg, var(--primary), var(--primary-2));
+  color:#001018; text-decoration:none;
+  box-shadow: var(--shadow);
+}
+
+/* Cards */
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px; padding:22px; box-shadow: var(--shadow);
+}
+.card-outline{
+  border:1px solid rgba(34,211,238,.35);
+  box-shadow: 0 0 0 2px rgba(34,211,238,.18), inset 0 0 40px rgba(34,211,238,.05);
+  border-radius:18px; padding:26px; background:rgba(2,8,23,.35);
+}
+
+/* Section titles */
+.section-title{
+  font-size:2.4rem; font-weight:800; margin:0 0 .6rem 0;
+}
+.rule{ height:4px; width:140px; border-radius:999px; background: linear-gradient(90deg, var(--primary), transparent); }
+
+/* Chips */
+.chips{display:flex; flex-wrap:wrap; gap:12px; margin-top:14px;}
+.chip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 14px; border-radius:14px;
+  background: radial-gradient(120px 60px at 30% 20%, rgba(34,211,238,.16), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--text); font-weight:600;
+  box-shadow: var(--shadow);
+}
+.badge{font-size:.85rem; color:var(--muted);}
+
+/* Muted text */
+.muted{color:var(--muted);}
+
+/* Helpers */
+.mt-2{margin-top:.5rem;} .mt-4{margin-top:1rem;} .mt-6{margin-top:1.5rem;}
+</style>
+"""
+st.markdown(CSS, unsafe_allow_html=True)
+
+# -------------------- NAVBAR --------------------
+st.markdown(
+    """
+    <div class="navbar">
+      <div class="nav-left gradient-text">Muneeb Khan</div>
+      <div class="nav-links">
+        <div class="nav-link"><a href="#home">Home</a></div>
+        <div class="nav-link"><a href="#experience">Experience</a></div>
+        <div class="nav-link"><a href="#projects">Projects</a></div>
+        <div class="nav-link"><a href="#certs">Certification</a></div>
+        <a class="nav-cta" href="#contact">Contact</a>
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# -------------------- DATA --------------------
+PROFILE = {
+    "name": "Muneeb Khan",
+    "tagline": "B.S. in Computer Science & Engineering • Minor in Quantitative Economics",
+    "blurb": (
+        "I'm a Computer Science & Engineering student at **The Ohio State University**, passionate about building "
+        "impactful and scalable solutions by combining systems, software, and a product mindset. "
+        "Interests span infrastructure, automation, and full-stack—shipping secure, reliable tools for real workflows."
+    ),
+    "skills": {
+        "Languages": ["Python", "Java", "C/C++", "SQL", "MATLAB"],
+        "Frameworks & Libraries": ["Streamlit", "FastAPI", "PyTorch (basics)"],
+        "DevOps & Tools": ["Linux", "Git", "Docker (basics)"],
+        "Cloud": ["Some exposure to AWS & GCP"],
+        "AI & ML": ["Classical ML, basic PyTorch"],
+        "Security": ["Secure coding basics, auth/session hygiene"]
+    },
+    "experience": [
+        {
+            "role": "Electrical Engineer Co-op",
+            "company": "Emerson",
+            "period": "Jan 2024 – Jun 2024 · Ohio",
+            "points": [
+                "Built through-hole & SMT PCB prototypes; created schematics and PCB layouts.",
+                "Ran tests with lab equipment; documented findings and iterated designs.",
+                "Supported microcontroller bring-up and C basics for embedded tasks."
+            ]
+        },
+        {
+            "role": "Engineering Technician",
+            "company": "Tool Company",
+            "period": "Aug 2024 – Present · Ohio",
+            "points": [
+                "Implemented sensor/Andon concepts to reduce downtime on production lines.",
+                "Collaborated across teams on track jam detection (cog-jam sensor).",
+                "Scoped upgrades within budget and safety constraints."
+            ]
+        },
+    ],
+    "projects": [
+        {
+            "name": "License Plate Cover Module",
+            "desc": "Switchable film controller that toggles clear/opaque at a button press; soldered, diagrammed, and prototyped logic (MATLAB)."
+        },
+        {
+            "name": "Homelab Rack on Wheels",
+            "desc": "Rolling rack with storage, servers, switching, UPS, firewall; organized cabling, labeling, and power domains."
+        },
+        {
+            "name": "Inventory Adjustment Automation",
+            "desc": "Python + SQL Server reconciliation from Excel to ERP API with audit trail for operations."
+        },
+    ],
+    "certs": [
+        "Lab & safety trainings",
+        "(Add any relevant certifications here)"
+    ],
+    "contact": {
+        "email": "muneeb.khan@example.com",
+        "location": "Columbus, OH",
+        "github": "https://github.com/",
+        "linkedin": "https://www.linkedin.com/"
+    }
+}
+
+def chips(items):
+    st.markdown(
+        "<div class='chips'>" + "".join([f"<div class='chip'>{it}</div>" for it in items]) + "</div>",
+        unsafe_allow_html=True
+    )
+
+# -------------------- HOME / HERO --------------------
+st.markdown('<a id="home"></a>', unsafe_allow_html=True)
+col1, col2 = st.columns([2,1])
+with col1:
+    st.markdown(f"<div class='section-title gradient-text'>B.S. in Computer Science & Engineering</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='badge'>{PROFILE['tagline']}</div>", unsafe_allow_html=True)
+    st.markdown("<div class='mt-4 card-outline'>", unsafe_allow_html=True)
+    st.write(PROFILE["blurb"])
+    st.markdown("</div>", unsafe_allow_html=True)
+with col2:
+    st.markdown("<div class='rule mt-6'></div>", unsafe_allow_html=True)
+    st.markdown("<div class='muted mt-2'>Quick links</div>", unsafe_allow_html=True)
+    st.markdown(f"• GitHub: [{PROFILE['contact']['github']}]({PROFILE['contact']['github']})")
+    st.markdown(f"• LinkedIn: [{PROFILE['contact']['linkedin']}]({PROFILE['contact']['linkedin']})")
+    st.markdown(f"• Email: {PROFILE['contact']['email']}")
+    st.markdown(f"• Location: {PROFILE['contact']['location']}")
+
+st.markdown("")
+
+# -------------------- SKILLS SECTION --------------------
+st.markdown("<div class='section-title' style='margin-top:1.2rem;'>Skills</div>", unsafe_allow_html=True)
+tab_titles = list(PROFILE["skills"].keys())
+tabs = st.tabs(tab_titles)
+for i, t in enumerate(tabs):
+    with t:
+        chips(PROFILE["skills"][tab_titles[i]])
+
+# -------------------- EXPERIENCE --------------------
+st.markdown('<a id="experience"></a>', unsafe_allow_html=True)
+st.markdown("<div class='section-title mt-6'>Experience</div>", unsafe_allow_html=True)
+for exp in PROFILE["experience"]:
+    with st.container():
+        st.markdown(f"<div class='card'><div style='display:flex;justify-content:space-between;align-items:center;'>"
+                    f"<div><strong>{exp['role']}</strong> · {exp['company']}</div>"
+                    f"<div class='muted'>{exp['period']}</div></div></div>", unsafe_allow_html=True)
+        for p in exp["points"]:
+            st.markdown(f"- {p}")
+
+# -------------------- PROJECTS --------------------
+st.markdown('<a id="projects"></a>', unsafe_allow_html=True)
+st.markdown("<div class='section-title mt-6'>Projects</div>", unsafe_allow_html=True)
+pc1, pc2, pc3 = st.columns(3)
+cols = [pc1, pc2, pc3]
+for idx, proj in enumerate(PROFILE["projects"]):
+    with cols[idx % 3]:
+        st.markdown(f"<div class='card-outline'><div style='font-weight:700;font-size:1.1rem'>{proj['name']}</div>"
+                    f"<div class='muted mt-2'>{proj['desc']}</div></div>", unsafe_allow_html=True)
+
+# -------------------- CERTS --------------------
+st.markdown('<a id="certs"></a>', unsafe_allow_html=True)
+st.markdown("<div class='section-title mt-6'>Certification</div>", unsafe_allow_html=True)
+for c in PROFILE["certs"]:
+    st.markdown(f"- {c}")
+
+# -------------------- CONTACT --------------------
+st.markdown('<a id="contact"></a>', unsafe_allow_html=True)
+st.markdown("<div class='section-title mt-6'>Contact</div>", unsafe_allow_html=True)
+with st.form("contact_form"):
+    name = st.text_input("Name")
+    email = st.text_input("Email")
+    msg = st.text_area("Message", height=120)
+    sent = st.form_submit_button("Send")
+    if sent:
+        st.success("Thanks! (Form demo — wire up to your backend or email service.)")
+
+st.markdown("<div class='muted mt-6'>Built with ❤️ in Streamlit • Neon cyan/blue theme inspired design</div>", unsafe_allow_html=True)
+'''
+
+(Path("/mnt/data/app.py")).write_text(app_code, encoding="utf-8")
+(Path("/mnt/data/requirements.txt")).write_text("streamlit>=1.34.0\n", encoding="utf-8")
+
+str(Path("/mnt/data/app.py")), str(Path("/mnt/data/requirements.txt"))
