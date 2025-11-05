@@ -5,7 +5,7 @@ from textwrap import dedent
 
 st.set_page_config(page_title="Muneeb Khan — Resume", page_icon="💼", layout="wide")
 
-# ======================== THEME / CSS (BLACK + RED) =========================
+#  THEME / CSS (BLACK + RED) 
 CSS = """
 <style>
 :root{
@@ -29,7 +29,7 @@ html, body, .block-container {
 }
 .block-container{padding-top:4.5rem;}
 
-/* ---------------- NAVBAR ---------------- */
+/*  NAVBAR  */
 .navbar{
   position:fixed; top:0; left:0; right:0; height:64px;
   background:linear-gradient(180deg, rgba(17,17,20,.85), rgba(17,17,20,.55));
@@ -50,7 +50,7 @@ html, body, .block-container {
   background:linear-gradient(135deg, var(--primary), var(--primary-2));
   color:#130a0a; text-decoration:none; box-shadow: var(--shadow); }
 
-/* ---------------- REUSABLE ---------------- */
+/*  REUSABLE  */
 .card{
   background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
   border:1px solid rgba(255,255,255,.08);
@@ -77,7 +77,7 @@ html, body, .block-container {
 .mt-2{margin-top:.5rem;} .mt-4{margin-top:1rem;} .mt-6{margin-top:1.5rem;}
 .small{font-size:.9rem;}
 
-/* ---------------- HERO ---------------- */
+/*  HERO  */
 .hero{
   display:grid; gap:28px; align-items:center;
   grid-template-columns: 220px minmax(0,1fr);
@@ -294,7 +294,7 @@ I turn complex problems into clean, reliable products and thrive on learning fro
   }
 }
 
-# ============================ HELPERS ============================
+#  HELPERS 
 def find_headshot(preferred: str) -> Optional[str]:
   """Return a path string to the headshot, trying common case/extension variants."""
   if not preferred:
@@ -332,7 +332,7 @@ def marquee_chips(items, seconds: float = 26):
   )
 
 
-# ============================ HERO (TOP) ============================
+#  HERO (TOP) 
 st.markdown('<a id="home"></a>', unsafe_allow_html=True)
 img_src = find_headshot(DATA["contact"]["headshot"])
 avatar_html = f"<img src='{img_src}' class='avatar'/>" if img_src else "<div class='avatar-fallback'>MK</div>"
@@ -362,7 +362,7 @@ st.markdown(
 )
 
 
-# ============================ EDUCATION ============================
+#  EDUCATION 
 st.markdown('<a id="education"></a>', unsafe_allow_html=True)
 st.markdown("<div class='section-title mt-6'>Education</div>", unsafe_allow_html=True)
 st.markdown(
@@ -376,7 +376,7 @@ st.markdown("**Certifications**")
 for c in DATA["education"]["certs"]:
   st.markdown(f"- {c}")
 
-# ============================ EXPERIENCE ============================
+#  EXPERIENCE 
 st.markdown('<a id="experience"></a>', unsafe_allow_html=True)
 st.markdown("<div class='section-title mt-6'>Experience</div>", unsafe_allow_html=True)
 for e in DATA["experience"]:
@@ -389,7 +389,7 @@ for e in DATA["experience"]:
   for p in e["points"]:
     st.markdown(f"- {p}")
 
-# ============================ PROJECTS ============================
+#  PROJECTS 
 st.markdown('<a id="projects"></a>', unsafe_allow_html=True)
 st.markdown("<div class='section-title mt-6'>Projects</div>", unsafe_allow_html=True)
 for p in DATA["projects"]:
@@ -402,7 +402,7 @@ for p in DATA["projects"]:
   for b in p["points"]:
     st.markdown(f"- {b}")
 
-# ============================ ACTIVITIES ============================
+#  ACTIVITIES 
 st.markdown('<a id="activities"></a>', unsafe_allow_html=True)
 st.markdown("<div class='section-title mt-6'>Activities & Leadership</div>", unsafe_allow_html=True)
 for a in DATA["activities"]:
@@ -415,7 +415,7 @@ for a in DATA["activities"]:
   for b in a["points"]:
     st.markdown(f"- {b}")
 
-# ============================ SKILLS ============================
+#  SKILLS 
 st.markdown('<a id="skills"></a>', unsafe_allow_html=True)
 st.markdown("<div class='section-title mt-6'>Skills</div>", unsafe_allow_html=True)
 tabs = st.tabs(list(DATA["skills"].keys()))
@@ -423,7 +423,7 @@ for tab, key in zip(tabs, DATA["skills"].keys()):
   with tab:
     chips(DATA["skills"][key])
 
-# ============================ CONTACT ============================
+#  CONTACT 
 st.markdown('<a id="contact"></a>', unsafe_allow_html=True)
 st.markdown("<div class='section-title mt-6'>Contact</div>", unsafe_allow_html=True)
 st.markdown(f"**Email:** [{DATA['contact']['email']}](mailto:{DATA['contact']['email']})")
@@ -432,4 +432,4 @@ st.markdown(f"**Location:** {DATA['contact']['city']}")
 st.markdown(f"**LinkedIn:** {DATA['contact']['linkedin']}")
 st.markdown(f"**GitHub:** {DATA['contact']['github']}")
 
-st.markdown("<div class='muted mt-6 small'>Built with Streamlit • Black + Red theme</div>", unsafe_allow_html=True)
+st.markdown("<div class='muted mt-6 small'> • Built with Streamlit • </div>", unsafe_allow_html=True)
