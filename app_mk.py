@@ -2,10 +2,12 @@ from pathlib import Path
 from typing import Optional
 import streamlit as st
 from textwrap import dedent
+from base64 import b64encode
+
 
 st.set_page_config(page_title="Muneeb Khan — Resume", page_icon="💼", layout="wide")
 
-#  THEME / CSS (BLACK + RED) 
+# ======================== THEME / CSS (BLACK + RED) =========================
 CSS = """
 <style>
 :root{
@@ -29,7 +31,7 @@ html, body, .block-container {
 }
 .block-container{padding-top:4.5rem;}
 
-/*  NAVBAR  */
+/* ---------------- NAVBAR ---------------- */
 .navbar{
   position:fixed; top:0; left:0; right:0; height:64px;
   background:linear-gradient(180deg, rgba(17,17,20,.85), rgba(17,17,20,.55));
@@ -50,7 +52,7 @@ html, body, .block-container {
   background:linear-gradient(135deg, var(--primary), var(--primary-2));
   color:#130a0a; text-decoration:none; box-shadow: var(--shadow); }
 
-/*  REUSABLE  */
+/* ---------------- REUSABLE ---------------- */
 .card{
   background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
   border:1px solid rgba(255,255,255,.08);
@@ -61,6 +63,13 @@ html, body, .block-container {
   box-shadow: 0 0 0 2px rgba(239,68,68,.18), inset 0 0 40px rgba(239,68,68,.05);
   border-radius:18px; padding:26px; background:rgba(0,0,0,.35);
 }
+
+/* spacing between stacked blocks */
+.card, .card-outline {
+  margin-bottom: 22px;
+}
+
+
 .section-title{ font-size:2.2rem; font-weight:800; margin:0 0 .6rem 0; }
 .rule{ height:4px; width:140px; border-radius:999px; background: linear-gradient(90deg, var(--primary), transparent); }
 
@@ -77,26 +86,48 @@ html, body, .block-container {
 .mt-2{margin-top:.5rem;} .mt-4{margin-top:1rem;} .mt-6{margin-top:1.5rem;}
 .small{font-size:.9rem;}
 
-/*  HERO  */
+/* ---------------- HERO ---------------- */
 .hero{
-  display:grid; gap:28px; align-items:center;
+  display:grid; 
+  gap:28px; 
+  align-items:center;
   grid-template-columns: 220px minmax(0,1fr);
 }
 @media (max-width: 820px){
   .hero{ grid-template-columns: 1fr; }
 }
 
+/* ---------------- HERO AVATAR (simple image + border) ---------------- */
+.avatar-wrapper{
+  width:220px;
+  /* let height be auto so the image decides it */
+}
+
 .avatar{
-  width:220px; height:220px; border-radius:9999px; object-fit:cover;
-  box-shadow: 0 10px 30px rgba(239,68,68,.25), 0 0 0 3px rgba(248,113,113,.35) inset;
-  background: radial-gradient(60% 60% at 50% 50%, rgba(239,68,68,.05), transparent);
+  display:block;
+  width:100%;
+  height:auto;              /* keep aspect ratio */
+  object-fit:cover;
+  border-radius:12px;       /* small rounding, not a circle */
+  border:3px solid var(--primary);
+  box-shadow:none;
+  background:none;
 }
+
 .avatar-fallback{
-  width:220px; height:220px; border-radius:9999px;
-  display:flex; align-items:center; justify-content:center; font-weight:900; font-size:48px;
-  color:#ffd7d7; background:radial-gradient(60% 60% at 50% 50%, rgba(239,68,68,.08), rgba(239,68,68,.02));
-  box-shadow: 0 10px 30px rgba(239,68,68,.25), 0 0 0 3px rgba(248,113,113,.35) inset;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:220px;
+  height:220px;
+  border-radius:12px;
+  border:3px solid var(--primary);
+  font-weight:900;
+  font-size:48px;
+  color:#ffd7d7;
+  background:#111114;
 }
+
 
 .hero-card{
   border:1px solid rgba(239,68,68,.45);
@@ -147,6 +178,7 @@ html, body, .block-container {
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
+
 
 # ============================ NAVBAR ============================
 st.markdown("""
@@ -294,7 +326,7 @@ I turn complex problems into clean, reliable products and thrive on learning fro
   }
 }
 
-#  HELPERS 
+# ============================ HELPERS ============================
 def find_headshot(preferred: str) -> Optional[str]:
   """Return a path string to the headshot, trying common case/extension variants."""
   if not preferred:
@@ -311,6 +343,14 @@ def find_headshot(preferred: str) -> Optional[str]:
     if c.exists():
       return c.as_posix()
   return None
+
+def img_to_base64(path: str) -> Optional[str]:
+    try:
+        with open(path, "rb") as f:
+            return b64encode(f.read()).decode("utf-8")
+    except Exception:
+        return None
+
 
 def chips(items):
   st.markdown("<div class='chips'>" + "".join(f"<div class='chip'>{i}</div>" for i in items) + "</div>", unsafe_allow_html=True)
@@ -332,15 +372,23 @@ def marquee_chips(items, seconds: float = 26):
   )
 
 
-#  HERO (TOP) 
+# ============================ HERO (TOP) ============================
 st.markdown('<a id="home"></a>', unsafe_allow_html=True)
+
 img_src = find_headshot(DATA["contact"]["headshot"])
-avatar_html = f"<img src='{img_src}' class='avatar'/>" if img_src else "<div class='avatar-fallback'>MK</div>"
+img_b64 = img_to_base64(img_src) if img_src else None
+
+avatar_html = (
+    f"<img src='data:image/jpeg;base64,{img_b64}' class='avatar'/>"
+    if img_b64
+    else "<div class='avatar-fallback'>MK</div>"
+)
+
 
 st.markdown(
   dedent(f"""
   <div class="hero">
-    <div>{avatar_html}</div>
+    <div class="avatar-wrapper">{avatar_html}</div>
     <div class="hero-card">
       <div class="hero-title">{DATA["hero"]["headline"]}</div>
       <div class="muted mt-2">{DATA["hero"]["subline"]}</div>
@@ -348,7 +396,6 @@ st.markdown(
       <div class="quick-links">
         <a class="btn" href="{DATA['contact']['linkedin']}" target="_blank">🔗 LinkedIn</a>
         <a class="btn" href="{DATA['contact']['github']}" target="_blank">💻 GitHub</a>
-        <a class="btn secondary" href="mailto:{DATA['contact']['email']}">✉️ Email</a>
       </div>
       <div class="mt-4">
         <span class="badge">📍 {DATA['contact']['city']}</span> &nbsp;&nbsp;
@@ -362,7 +409,7 @@ st.markdown(
 )
 
 
-#  EDUCATION 
+# ============================ EDUCATION ============================
 st.markdown('<a id="education"></a>', unsafe_allow_html=True)
 st.markdown("<div class='section-title mt-6'>Education</div>", unsafe_allow_html=True)
 st.markdown(
@@ -376,60 +423,71 @@ st.markdown("**Certifications**")
 for c in DATA["education"]["certs"]:
   st.markdown(f"- {c}")
 
-#  EXPERIENCE 
+# ============================ EXPERIENCE ============================
 st.markdown('<a id="experience"></a>', unsafe_allow_html=True)
 st.markdown("<div class='section-title mt-6'>Experience</div>", unsafe_allow_html=True)
 for e in DATA["experience"]:
   st.markdown(
-    f"<div class='card'><div style='display:flex;justify-content:space-between;align-items:center;'>"
-    f"<div><strong>{e['role']}</strong> · {e['org']} — <span class='muted'>{e['place']}</span></div>"
-    f"<div class='muted'>{e['period']}</div></div></div>",
+    f"""
+    <div class='card'>
+      <div style='display:flex;justify-content:space-between;align-items:center;'>
+        <div><strong>{e['role']}</strong> · {e['org']} — <span class='muted'>{e['place']}</span></div>
+        <div class='muted'>{e['period']}</div>
+      </div>
+      <ul>
+        {''.join(f"<li>{point}</li>" for point in e['points'])}
+      </ul>
+    </div>
+    """,
     unsafe_allow_html=True
   )
-  for p in e["points"]:
-    st.markdown(f"- {p}")
 
-#  PROJECTS 
+
+# ============================ PROJECTS ============================
 st.markdown('<a id="projects"></a>', unsafe_allow_html=True)
 st.markdown("<div class='section-title mt-6'>Projects</div>", unsafe_allow_html=True)
 for p in DATA["projects"]:
   st.markdown(
-    f"<div class='card-outline'><div style='display:flex;justify-content:space-between;align-items:center;'>"
-    f"<div style='font-weight:700;font-size:1.05rem'>{p['name']}</div>"
-    f"<div class='muted'>{p['period']}</div></div></div>",
+    f"""
+    <div class='card'>
+      <div style='display:flex;justify-content:space-between;align-items:center;'>
+        <div style='font-weight:700;font-size:1.05rem'>{p['name']}</div>
+        <div class='muted'>{p['period']}</div>
+      </div>
+      <ul>
+        {''.join(f"<li>{point}</li>" for point in p['points'])}
+      </ul>
+    </div>
+    """,
     unsafe_allow_html=True
   )
-  for b in p["points"]:
-    st.markdown(f"- {b}")
 
-#  ACTIVITIES 
+
+
+# ============================ ACTIVITIES ============================
 st.markdown('<a id="activities"></a>', unsafe_allow_html=True)
 st.markdown("<div class='section-title mt-6'>Activities & Leadership</div>", unsafe_allow_html=True)
 for a in DATA["activities"]:
   st.markdown(
-    f"<div class='card'><div style='display:flex;justify-content:space-between;align-items:center;'>"
-    f"<div><strong>{a['name']}</strong> — <span class='muted'>{a['place']}</span></div>"
-    f"<div class='muted'>{a['period']}</div></div></div>",
+    f"""
+    <div class='card'>
+      <div style='display:flex;justify-content:space-between;align-items:center;'>
+        <div><strong>{a['name']}</strong> — <span class='muted'>{a['place']}</span></div>
+        <div class='muted'>{a['period']}</div>
+      </div>
+      <ul>
+        {''.join(f"<li>{point}</li>" for point in a['points'])}
+      </ul>
+    </div>
+    """,
     unsafe_allow_html=True
   )
-  for b in a["points"]:
-    st.markdown(f"- {b}")
 
-#  SKILLS 
+# ============================ SKILLS ============================
 st.markdown('<a id="skills"></a>', unsafe_allow_html=True)
 st.markdown("<div class='section-title mt-6'>Skills</div>", unsafe_allow_html=True)
 tabs = st.tabs(list(DATA["skills"].keys()))
 for tab, key in zip(tabs, DATA["skills"].keys()):
   with tab:
     chips(DATA["skills"][key])
-
-#  CONTACT 
-st.markdown('<a id="contact"></a>', unsafe_allow_html=True)
-st.markdown("<div class='section-title mt-6'>Contact</div>", unsafe_allow_html=True)
-st.markdown(f"**Email:** [{DATA['contact']['email']}](mailto:{DATA['contact']['email']})")
-st.markdown(f"**Phone:** {DATA['contact']['phone']}")
-st.markdown(f"**Location:** {DATA['contact']['city']}")
-st.markdown(f"**LinkedIn:** {DATA['contact']['linkedin']}")
-st.markdown(f"**GitHub:** {DATA['contact']['github']}")
-
-st.markdown("<div class='muted mt-6 small'> • Built with Streamlit • </div>", unsafe_allow_html=True)
+st.markdown("<div class='muted mt-6 small'>© Muneeb Khan 2025. All rights reserved</div>", unsafe_allow_html=True)

@@ -217,7 +217,3 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-
-# Files
-mk.txt
-junk.txt
